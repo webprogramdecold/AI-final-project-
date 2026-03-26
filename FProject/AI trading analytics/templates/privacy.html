@@ -1,0 +1,192 @@
+{% extends "base.html" %}
+
+{% block title %}Privacy Policy - AI Trading Analytics{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <h1>🔒 Privacy Policy</h1>
+        <p>Last Updated: February 2026</p>
+    </div>
+
+    <div class="legal-container">
+        <!-- Introduction -->
+        <section class="legal-section">
+            <h2>1. Introduction</h2>
+            <p>
+                AI Trading Analytics ("we", "our", or "the platform") provides market analytics and 
+                AI-powered predictions for educational purposes. This Privacy Policy describes how we 
+                collect, use, disclose, and protect your information when you use our platform.
+            </p>
+            <p>
+                By using the platform, you agree to the data practices described in this policy. 
+                We may update this policy from time to time; the "Last Updated" date at the top reflects the latest version.
+            </p>
+        </section>
+
+        <!-- Data Sharing -->
+        <section class="legal-section">
+            <h2>2. Data Sharing & Third Parties</h2>
+            
+            <h3>2.1 Exchange APIs</h3>
+            <p>
+                If you link an exchange account, we use your API credentials only to communicate 
+                with that exchange on your behalf (e.g. to fetch balances and market data). 
+                Your credentials are sent directly to the exchange; we do not share them with 
+                any other third parties.
+            </p>
+
+            <h3>2.2 External Services</h3>
+            <p>
+                The platform may load content or data from external services such as TradingView (charts), 
+                CoinMarketCap (market data), and Alternative.me (Fear & Greed index). Those services have 
+                their own privacy policies; we encourage you to review them.
+            </p>
+
+            <h3>2.3 We Do NOT</h3>
+            <ul>
+                <li>Sell your data to third parties</li>
+                <li>Share your API credentials with anyone else</li>
+                <li>Use your data for marketing or advertising</li>
+                <li>Track you across other websites</li>
+            </ul>
+        </section>
+
+        <!-- Cookies -->
+        <section class="legal-section">
+            <h2>3. Cookies & Sessions</h2>
+            <p>
+                We use server-side sessions for authentication. A session cookie stores only a session ID 
+                (encrypted) and is HttpOnly so it is not accessible via JavaScript. Sessions end when you 
+                close the browser or log out.
+            </p>
+            <p>
+                We do not use tracking cookies, advertising cookies, or third-party analytics cookies.
+            </p>
+        </section>
+
+        <!-- Data Retention -->
+        <section class="legal-section">
+            <h2>4. Data Retention</h2>
+            <p>
+                Account data is retained until you request deletion. Market and prediction-related data 
+                (e.g. price history) may be retained for the operation of the platform. Server logs are 
+                typically rotated or deleted after a short period (e.g. 30 days). For any production use, 
+                retention practices should comply with applicable laws (e.g. GDPR, CCPA).
+            </p>
+        </section>
+
+        <!-- Children's Privacy -->
+        <section class="legal-section">
+            <h2>5. Children's Privacy</h2>
+            <p>
+                This platform is not intended for anyone under 18. We do not knowingly collect 
+                personal information from children. If you are under 18, please do not use this platform. 
+                Use of crypto and financial services is subject to age restrictions in many jurisdictions.
+            </p>
+        </section>
+
+        <!-- Legal Disclaimer -->
+        <div class="legal-disclaimer">
+            <h3>⚖️ Legal Disclaimer</h3>
+            <p>
+                This Privacy Policy is a <strong>template for educational purposes</strong>. 
+                It is NOT a legally binding document and has NOT been reviewed by legal counsel.
+            </p>
+            <p style="color: #ef4444; font-weight: 600;">
+                Before deploying this platform for production use:
+            </p>
+            <ul>
+                <li>Consult with a qualified attorney specializing in data privacy</li>
+                <li>Ensure compliance with applicable laws (GDPR, CCPA, etc.)</li>
+                <li>Implement proper security measures</li>
+                <li>Obtain user consent for data processing</li>
+                <li>Establish data breach notification procedures</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Legal Document Styling */
+.legal-container {
+    max-width: 900px;
+    margin: 0 auto;
+    background: white;
+    padding: 2.5rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.legal-section {
+    margin-bottom: 2.5rem;
+}
+
+.legal-section h2 {
+    color: #1f2937;
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #667eea;
+}
+
+.legal-section h3 {
+    color: #4b5563;
+    font-size: 1.15rem;
+    margin: 1.5rem 0 0.75rem 0;
+}
+
+.legal-section p {
+    color: #374151;
+    line-height: 1.8;
+    margin: 0.75rem 0;
+}
+
+.legal-section ul {
+    color: #374151;
+    line-height: 1.8;
+    margin: 0.75rem 0 0.75rem 1.5rem;
+}
+
+.legal-section li {
+    margin: 0.5rem 0;
+}
+
+.legal-section strong {
+    color: #1f2937;
+}
+
+.legal-disclaimer {
+    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+    border-left: 4px solid #ef4444;
+    padding: 1.5rem;
+    margin-top: 2rem;
+    border-radius: 8px;
+}
+
+.legal-disclaimer h3 {
+    color: #991b1b;
+    margin-top: 0;
+    margin-bottom: 0.75rem;
+}
+
+.legal-disclaimer p, .legal-disclaimer ul {
+    color: #7f1d1d;
+}
+
+@media (max-width: 768px) {
+    .legal-container {
+        padding: 1.5rem;
+    }
+    
+    .legal-section h2 {
+        font-size: 1.25rem;
+    }
+    
+    .legal-section h3 {
+        font-size: 1.05rem;
+    }
+}
+</style>
+{% endblock %}

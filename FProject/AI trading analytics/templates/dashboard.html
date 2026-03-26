@@ -1,0 +1,316 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - AI Trading Analytics{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <h1>📊 Dashboard</h1>
+        <p>Welcome back, <strong>{{ user.username }}</strong>! Here's your market overview</p>
+    </div>
+    
+    <!-- Live Price Chart -->
+    <div class="card chart-card" style="margin-bottom: 2rem;">
+        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+            <h2 style="margin: 0;">📊 Live Price Chart</h2>
+            <div class="chart-controls" style="display: flex; align-items: center; gap: 0.5rem;">
+                <label for="chartSymbolSelect" style="font-weight: 500;">Symbol:</label>
+                <select id="chartSymbolSelect" class="select-input" style="min-width: 140px;">
+                    <option value="BTCUSDT" {% if active_symbol == 'BTCUSDT' %}selected{% endif %}>Bitcoin (BTC)</option>
+                    <option value="ETHUSDT" {% if active_symbol == 'ETHUSDT' %}selected{% endif %}>Ethereum (ETH)</option>
+                    <option value="BNBUSDT" {% if active_symbol == 'BNBUSDT' %}selected{% endif %}>BNB (BNB)</option>
+                    <option value="SOLUSDT" {% if active_symbol == 'SOLUSDT' %}selected{% endif %}>Solana (SOL)</option>
+                    <option value="ADAUSDT" {% if active_symbol == 'ADAUSDT' %}selected{% endif %}>Cardano (ADA)</option>
+                    <option value="XRPUSDT" {% if active_symbol == 'XRPUSDT' %}selected{% endif %}>XRP (XRP)</option>
+                </select>
+            </div>
+        </div>
+        <div class="card-body">
+            <div id="tradingview_widget_container" style="height: 400px; width: 100%;"></div>
+            <p class="chart-note" style="margin-top: 1rem; font-size: 0.875rem; color: #64748b;">
+                📌 Real-time chart powered by <a href="https://www.tradingview.com/" target="_blank" rel="noopener">TradingView</a>
+            </p>
+        </div>
+    </div>
+    
+    <!-- Top Section: Three Cards -->
+    <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
+        <!-- Fear & Greed Index -->
+        <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+            <div class="card-header" style="border-bottom: 1px solid rgba(255,255,255,0.2); padding: 1rem 1.5rem;">
+                <h2 style="color: white; font-size: 1.25rem; margin: 0;">😱 Fear & Greed Index</h2>
+                <small style="color: rgba(255,255,255,0.9); font-size: 0.8rem;">Current market sentiment</small>
+            </div>
+            <div class="card-body" style="padding: 1rem 1.5rem;">
+                <div id="fearGreedContent">
+                    <div class="loading-spinner" style="text-align: center; padding: 2rem;">
+                        <div class="spinner" style="border-color: rgba(255,255,255,0.3); border-top-color: white;"></div>
+                        <p style="color: white; margin-top: 1rem;">Loading...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Definitions -->
+        <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+            <div class="card-header" style="border-bottom: 1px solid rgba(255,255,255,0.2); padding: 1rem 1.5rem;">
+                <h2 style="color: white; font-size: 1.25rem; margin: 0;">📖 Ranges</h2>
+            </div>
+            <div class="card-body" style="padding: 1rem 1.5rem;">
+                <div style="font-size: 0.75rem; line-height: 1.8;">
+                    <div style="margin-bottom: 0.5rem;"><strong>0-24</strong>: Extreme Fear 😰</div>
+                    <div style="margin-bottom: 0.5rem;"><strong>25-49</strong>: Fear 😟</div>
+                    <div style="margin-bottom: 0.5rem;"><strong>50-74</strong>: Greed 😊</div>
+                    <div><strong>75-100</strong>: Extreme Greed 🤑</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Quick Actions -->
+        <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+            <div class="card-header" style="border-bottom: 1px solid rgba(255,255,255,0.2); padding: 1rem 1.5rem;">
+                <h2 style="color: white; font-size: 1.25rem; margin: 0;">⚡ Quick Actions</h2>
+            </div>
+            <div class="card-body" style="padding: 1rem 1.5rem;">
+                <div style="display: grid; gap: 0.75rem;">
+                    <a href="{{ url_for('portfolio') }}" class="btn btn-primary btn-block" style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: white; text-decoration: none; padding: 0.75rem; border-radius: 6px; text-align: center; font-weight: 600; transition: all 0.2s;">
+                        💼 Portfolio
+                    </a>
+                    <a href="{{ url_for('exchanges') }}" class="btn btn-secondary btn-block" style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: white; text-decoration: none; padding: 0.75rem; border-radius: 6px; text-align: center; font-weight: 600; transition: all 0.2s;">
+                        🔗 Exchanges
+                    </a>
+                    <a href="{{ url_for('advanced_prediction_page') }}" class="btn btn-secondary btn-block" style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: white; text-decoration: none; padding: 0.75rem; border-radius: 6px; text-align: center; font-weight: 600; transition: all 0.2s;">
+                        🔮 Prediction
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Market Overview -->
+    <div class="market-overview-wrapper">
+            <div class="card market-overview-card">
+                <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <h2>🌐 Market Overview</h2>
+                        <p style="margin: 0.25rem 0 0 0; font-size: 0.875rem; color: #64748b;">
+                            Top 20 cryptocurrencies • Live from CoinMarketCap • Auto-updates every 30 seconds
+                        </p>
+                    </div>
+                    <div style="display: flex; gap: 0.5rem; align-items: center;">
+                        <span id="marketLastUpdate" style="font-size: 0.75rem; color: #94a3b8;">
+                            Loading...
+                        </span>
+                        <button id="refreshMarketBtn" class="btn btn-secondary btn-sm">
+                            🔄 Refresh
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <!-- Loading State -->
+                    <div id="marketLoading" class="loading-spinner" style="display: block; padding: 2rem; text-align: center;">
+                        <div class="spinner"></div>
+                        <p style="margin-top: 1rem;">Loading market data...</p>
+                    </div>
+                    
+                    <!-- Market Table -->
+                    <div id="marketTableContainer" style="display: none; overflow-x: auto;">
+                        <table class="market-table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Coin</th>
+                                    <th>Price</th>
+                                    <th>1h %</th>
+                                    <th>24h %</th>
+                                    <th>7d %</th>
+                                    <th>Market Cap</th>
+                                    <th>Volume (24h)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="marketTableBody">
+                                <!-- Populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- Error State -->
+                    <div id="marketError" style="display: none; padding: 2rem; text-align: center; color: #ef4444;">
+                        <p style="margin: 0;">❌ Failed to load market data</p>
+                        <p style="margin: 0.5rem 0 0 0; font-size: 0.875rem;" id="marketErrorMsg"></p>
+                        <button type="button" onclick="typeof loadMarketData === 'function' && loadMarketData()" class="btn btn-secondary btn-sm" style="margin-top: 1rem;">🔄 Try Again</button>
+                    </div>
+                </div>
+            </div>
+    </div>
+</div>
+                        
+<script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+<script type="text/javascript">
+var tradingViewWidget;
+var chartCurrentSymbol = 'BINANCE:{{ active_symbol|default("BTCUSDT") }}';
+
+function initTradingViewChart() {
+    var container = document.getElementById('tradingview_widget_container');
+    if (!container) return;
+    if (typeof TradingView === 'undefined' || !TradingView.widget) {
+        container.innerHTML = '<div style="padding: 2rem; text-align: center; color: #64748b;">' +
+            'Chart loading… If this persists, check your connection and <a href="javascript:location.reload()">refresh the page</a>.</div>';
+        return;
+    }
+    container.innerHTML = '';
+    try {
+        tradingViewWidget = new TradingView.widget({
+            "width": "100%",
+            "height": 400,
+            "symbol": chartCurrentSymbol,
+            "interval": "60",
+            "timezone": "Etc/UTC",
+            "theme": "light",
+            "style": "1",
+            "locale": "en",
+            "toolbar_bg": "#f1f3f6",
+            "enable_publishing": false,
+            "allow_symbol_change": false,
+            "container_id": "tradingview_widget_container",
+            "studies": ["MASimple@tv-basicstudies"],
+            "hide_side_toolbar": false,
+            "hide_top_toolbar": false,
+            "save_image": false
+        });
+    } catch (e) {
+        console.error('TradingView chart error:', e);
+        container.innerHTML = '<div style="padding: 2rem; text-align: center; color: #ef4444;">Chart failed to load. <a href="javascript:location.reload()">Refresh the page</a> to try again.</div>';
+    }
+}
+
+function onChartSymbolChange() {
+    var select = document.getElementById('chartSymbolSelect');
+    if (!select) return;
+    var newSymbol = select.value;
+    chartCurrentSymbol = 'BINANCE:' + newSymbol;
+    initTradingViewChart();
+    fetch('/api/set_symbol', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ symbol: newSymbol })
+    }).catch(function(e) { console.warn('Set symbol failed', e); });
+}
+</script>
+<script src="{{ url_for('static', filename='js/market_overview.js') }}"></script>
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+
+<script>
+// Wait for TradingView script to load, then init chart (retry up to ~10s)
+function tryInitTradingViewChart(attempt) {
+    attempt = attempt || 0;
+    var maxAttempts = 20;
+    if (typeof TradingView !== 'undefined' && typeof TradingView.widget === 'function') {
+        initTradingViewChart();
+        var chartSelect = document.getElementById('chartSymbolSelect');
+        if (chartSelect) chartSelect.addEventListener('change', onChartSymbolChange);
+        return;
+    }
+    if (attempt < maxAttempts) {
+        setTimeout(function() { tryInitTradingViewChart(attempt + 1); }, 500);
+    } else {
+        var container = document.getElementById('tradingview_widget_container');
+        if (container) {
+            container.innerHTML = '<div style="padding: 2rem; text-align: center; color: #64748b;">Chart could not load. Check your connection and <a href="javascript:location.reload()">refresh the page</a>.</div>';
+        }
+    }
+}
+
+// Initialize dashboard on page load
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('📊 Initializing dashboard...');
+    loadFearGreedIndex();
+    tryInitTradingViewChart(0);
+});
+
+// Load Fear & Greed Index
+async function loadFearGreedIndex() {
+    console.log('😱 Loading Fear & Greed Index...');
+    
+    const contentDiv = document.getElementById('fearGreedContent');
+    if (!contentDiv) {
+        console.log('❌ Fear & Greed content div not found');
+        return;
+    }
+    
+    try {
+        const response = await fetch('/api/fear_greed');
+        let data;
+        try {
+            data = await response.json();
+        } catch (parseErr) {
+            throw new Error(response.ok ? 'Invalid response from server' : 'Server error – try again later');
+        }
+        if (!response.ok) {
+            throw new Error((data && data.error) || 'Server error (' + response.status + ')');
+        }
+        if (data.success && data.value != null) {
+            console.log('✅ Fear & Greed: ' + data.value + '/100 (' + (data.value_classification || '') + ')');
+            displayFearGreedIndex(data);
+        } else {
+            throw new Error((data && data.error) || 'Failed to load Fear & Greed Index');
+        }
+    } catch (error) {
+        console.error('❌ Error loading Fear & Greed Index:', error);
+        var msg = (error && error.message) ? error.message : 'Unknown error';
+        contentDiv.innerHTML = '<div style="text-align: center; padding: 2rem; color: white;">' +
+            '<p><strong>❌ Failed to load Fear & Greed Index</strong></p>' +
+            '<p style="font-size: 0.875rem; margin-top: 0.5rem;">' + String(msg).replace(/</g, '&lt;') + '</p>' +
+            '<button onclick="loadFearGreedIndex()" class="btn btn-secondary btn-sm" style="margin-top: 1rem;">🔄 Try Again</button></div>';
+    }
+}
+
+// Display Fear & Greed Index
+function displayFearGreedIndex(data) {
+    const contentDiv = document.getElementById('fearGreedContent');
+    if (!contentDiv) return;
+    var value = parseInt(data.value, 10);
+    if (isNaN(value)) value = 0;
+    var classification = (data.value_classification != null) ? String(data.value_classification) : '';
+    // Determine color and emoji based on value
+    var color, emoji, interpretation;
+    if (value <= 24) {
+        color = '#dc2626'; // Red
+        emoji = '😰';
+        interpretation = 'Extreme Fear - Potential buying opportunity';
+    } else if (value <= 49) {
+        color = '#f59e0b'; // Orange
+        emoji = '😟';
+        interpretation = 'Fear - Market cautious';
+    } else if (value <= 74) {
+        color = '#10b981'; // Green
+        emoji = '😊';
+        interpretation = 'Greed - Market bullish';
+    } else {
+        color = '#059669'; // Dark green
+        emoji = '🤑';
+        interpretation = 'Extreme Greed - Consider taking profits';
+    }
+    
+    contentDiv.innerHTML = '<div style="text-align: center; padding: 0.5rem 0;">' +
+            '<div style="margin-bottom: 0.75rem;">' +
+                '<div style="font-size: 2.5rem; line-height: 1;">' + emoji + '</div>' +
+                '<div style="font-size: 2.25rem; font-weight: bold; line-height: 1; margin-top: 0.25rem;">' + value + '</div>' +
+                '<div style="font-size: 0.85rem; font-weight: 600; margin-top: 0.25rem; opacity: 0.9;">' + classification + '</div>' +
+            '</div>' +
+            '<div style="width: 100%; max-width: 400px; margin: 0 auto; height: 16px; background: rgba(255,255,255,0.2); border-radius: 8px; overflow: hidden; position: relative; margin-bottom: 0.75rem;">' +
+                '<div style="height: 100%; width: ' + Math.min(100, Math.max(0, value)) + '%; background: ' + color + '; transition: width 0.5s ease;"></div>' +
+                '<div style="position: absolute; top: 50%; right: 6px; transform: translateY(-50%); font-size: 0.65rem; font-weight: 600; color: white; text-shadow: 0 1px 2px rgba(0,0,0,0.5);">' +
+                    value + '/100' +
+                '</div>' +
+            '</div>' +
+            '<div style="background: rgba(255,255,255,0.15); padding: 0.5rem 0.75rem; border-radius: 6px; max-width: 400px; margin: 0 auto;">' +
+                '<div style="font-size: 0.75rem; opacity: 0.95; line-height: 1.4;">' + (interpretation || '') + '</div>' +
+            '</div>' +
+        '</div>';
+}
+
+</script>
+{% endblock %}
+

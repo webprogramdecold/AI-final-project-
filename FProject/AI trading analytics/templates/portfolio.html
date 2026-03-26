@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+
+{% block title %}Portfolio - AI Trading Analytics{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <h1>💼 Exchange Portfolio</h1>
+        <p>View balances and positions from your connected exchange accounts</p>
+    </div>
+    
+    <!-- Exchange Selection -->
+    <div class="card exchange-selector-card" style="margin-bottom: 2rem;">
+        <div class="card-body">
+            <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+                <div style="flex: 1; min-width: 250px;">
+                    <label for="exchangeAccountSelect" style="display: block; margin-bottom: 0.5rem; font-weight: 600;">
+                        Select Exchange Account:
+                    </label>
+                    <select id="exchangeAccountSelect" class="form-input">
+                        <option value="">Choose an exchange account...</option>
+                    </select>
+                </div>
+                <div style="display: flex; gap: 0.5rem;">
+                    <button id="refreshExchangeBtn" class="btn btn-primary" disabled onclick="loadExchangePortfolio()">
+                        🔄 Refresh
+                    </button>
+                    <a href="{{ url_for('exchanges') }}" class="btn btn-secondary">
+                        🔗 Manage Accounts
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Exchange Portfolio Summary -->
+    <div class="stats-grid" id="exchangeStats" style="display: none;">
+        <div class="stat-card">
+            <div class="stat-icon">💰</div>
+            <div class="stat-content">
+                <div class="stat-label">Balances</div>
+                <div class="stat-value" id="exchangeBalanceCount">0</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">📊</div>
+            <div class="stat-content">
+                <div class="stat-label">Positions</div>
+                <div class="stat-value" id="exchangePositionCount">0</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Exchange Portfolio Table -->
+    <div class="card exchange-portfolio-card">
+        <div class="card-header">
+            <h2>🌐 Live Exchange Balances</h2>
+        </div>
+        <div class="card-body">
+            <div id="exchangeLoading" class="loading-spinner" style="display: none;">
+                <div class="spinner"></div>
+                <p>Fetching data from exchange...</p>
+            </div>
+            
+            <div id="exchangeEmptyState" class="empty-state">
+                <div class="empty-icon">🔗</div>
+                <p>Select an exchange account above to view live balances and positions.</p>
+                <p><a href="{{ url_for('exchanges') }}" class="btn btn-primary">Link an Exchange Account</a></p>
+            </div>
+            
+            <div id="exchangePortfolioContainer" style="display: none;">
+                <div class="table-responsive">
+                    <table class="portfolio-table">
+                        <thead>
+                            <tr>
+                                <th>Asset</th>
+                                <th>Free</th>
+                                <th>Locked</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody id="exchangePortfolioBody"></tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div id="exchangeError" style="display: none; text-align: center; padding: 2rem; color: #ef4444;">
+                <p style="margin: 0;">❌ Failed to load exchange portfolio</p>
+                <p style="margin: 0.5rem 0 0 0; font-size: 0.875rem;" id="exchangeErrorMsg"></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.portfolio-table { width: 100%; border-collapse: collapse; }
+.portfolio-table th { background: #f8fafc; padding: 1rem; text-align: left; font-weight: 600; border-bottom: 2px solid #e2e8f0; }
+.portfolio-table td { padding: 1rem; border-bottom: 1px solid #e2e8f0; }
+.portfolio-table tbody tr:hover { background: #f8fafc; }
+.empty-state { text-align: center; padding: 3rem; color: #64748b; }
+.empty-icon { font-size: 3rem; margin-bottom: 1rem; }
+.loading-spinner { text-align: center; padding: 3rem; }
+.spinner { border: 4px solid #f3f4f6; border-top: 4px solid #2563eb; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 1rem; }
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+</style>
+
+<script>
+function loadExchangePortfolio() {
+    const accountId = document.getElementById('exchangeAccountSelect').value;
+    if (!accountId) {
+        alert('Please select an exchange account');
+        return;
+    }
+    
+    document.getElementById('exchangeLoading').style.display = 'block';
+    document.getElementById('exchangeEmptyState').style.display = 'none';
+    document.getElementById('exchangePortfolioContainer').style.display = 'none';
+    document.getElementById('exchangeError').style.display = 'none';
+    
+    fetch('/api/exchange/' + accountId + '/portfolio')
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('exchangeLoading').style.display = 'none';
+            if (data.success) {
+                displayExchangePortfolio(data);
+            } else {
+                document.getElementById('exchangeError').style.display = 'block';
+                document.getElementById('exchangeErrorMsg').textContent = data.error || 'Unknown error';
+            }
+        })
+        .catch(error => {
+            console.error('Error loading exchange portfolio:', error);
+            document.getElementById('exchangeLoading').style.display = 'none';
+            document.getElementById('exchangeError').style.display = 'block';
+            document.getElementById('exchangeErrorMsg').textContent = 'Network error. Please try again.';
+        });
+}
+
+function displayExchangePortfolio(data) {
+    document.getElementById('exchangeStats').style.display = 'grid';
+    document.getElementById('exchangeBalanceCount').textContent = data.balance_count || 0;
+    document.getElementById('exchangePositionCount').textContent = data.position_count || 0;
+    document.getElementById('exchangePortfolioContainer').style.display = 'block';
+    
+    const tbody = document.getElementById('exchangePortfolioBody');
+    tbody.innerHTML = '';
+    
+    if (data.balances && data.balances.length > 0) {
+        data.balances.forEach(function(b) {
+            const free = typeof b.free === 'number' ? b.free : parseFloat(b.free) || 0;
+            const used = typeof b.used === 'number' ? b.used : parseFloat(b.used) || 0;
+            const total = typeof b.total === 'number' ? b.total : parseFloat(b.total) || 0;
+            const row = document.createElement('tr');
+            row.innerHTML = '<td><strong>' + (b.asset || b.currency || '') + '</strong></td><td>' + free.toFixed(8) + '</td><td>' + used.toFixed(8) + '</td><td>' + total.toFixed(8) + '</td>';
+            tbody.appendChild(row);
+        });
+    } else {
+        tbody.innerHTML = '<tr><td colspan="4" class="empty-state"><div class="empty-icon">📭</div><p>No balances found on this exchange</p></td></tr>';
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    fetch('/api/exchange/accounts')
+        .then(response => response.json())
+        .then(data => {
+            const select = document.getElementById('exchangeAccountSelect');
+            if (data.success && data.accounts && data.accounts.length > 0) {
+                data.accounts.forEach(function(account) {
+                    const option = document.createElement('option');
+                    option.value = account.id;
+                    option.textContent = (account.exchange_name || '').toUpperCase() + (account.is_testnet ? ' - Testnet' : ' - Live');
+                    select.appendChild(option);
+                });
+            }
+        })
+        .catch(function(err) { console.error('Error loading exchange accounts:', err); });
+    
+    document.getElementById('exchangeAccountSelect').addEventListener('change', function() {
+        document.getElementById('refreshExchangeBtn').disabled = !this.value;
+        if (this.value) document.getElementById('exchangeEmptyState').style.display = 'none';
+    });
+});
+</script>
+{% endblock %}

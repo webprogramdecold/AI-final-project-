@@ -1,0 +1,64 @@
+{# Base layout for AI Trading Analytics: nav, flash, main content block, footer, main.js. #}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}AI Trading Analytics{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="{{ url_for('home') }}" class="nav-logo">
+                📈 AI Trading Analytics
+            </a>
+            
+            {% if session.get('user_id') %}
+            <ul class="nav-menu">
+                <li><a href="{{ url_for('dashboard') }}" class="nav-link">📊 Dashboard</a></li>
+                <li><a href="{{ url_for('advanced_prediction_page') }}" class="nav-link">🔮 Prediction</a></li>
+                <li><a href="{{ url_for('portfolio') }}" class="nav-link">💼 Portfolio</a></li>
+                <li><a href="{{ url_for('exchanges') }}" class="nav-link">🔗 Exchanges</a></li>
+                <li><a href="{{ url_for('profile') }}" class="nav-link">👤 Profile</a></li>
+                <li><a href="{{ url_for('logout') }}" class="nav-logout">🚪 Logout</a></li>
+            </ul>
+            {% else %}
+            <ul class="nav-menu">
+                <li><a href="{{ url_for('login') }}">Login</a></li>
+                <li><a href="{{ url_for('register') }}">Register</a></li>
+            </ul>
+            {% endif %}
+        </div>
+    </nav>
+    <div class="flash-container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                <div class="flash flash-{{ category }}">
+                    {{ message }}
+                    <button class="flash-close" onclick="this.parentElement.remove()">×</button>
+                </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+    <main class="main-content">
+        {% block content %}
+        {% endblock %}
+    </main>
+    <footer class="footer">
+        <p>&copy; 2026 AI Trading Analytics. Market analytics and predictions for educational purposes only.</p>
+        <nav class="footer-links">
+            <a href="{{ url_for('faq') }}">❓ FAQ</a>
+            <span class="footer-separator">|</span>
+            <a href="{{ url_for('privacy') }}">🔒 Privacy Policy</a>
+            <span class="footer-separator">|</span>
+            <a href="{{ url_for('terms') }}">📜 Terms of Use</a>
+        </nav>
+    </footer>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>
+

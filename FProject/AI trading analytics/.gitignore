@@ -1,0 +1,23 @@
+############################
+# Python artifacts
+############################
+
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+
+############################
+# OS / Editor
+############################
+
+.DS_Store
+.vscode/
+.idea/
+
+scripts/
+
